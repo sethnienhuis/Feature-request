@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <title>Feature Requests</title>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
 body {
@@ -39,15 +39,17 @@ body {
 <script>
 console.log("SCRIPT LOADED");
 
-// 🔒 SAFE INIT (NO DUPLICATES EVER)
-const supabase = window.supabase.createClient(
+// ✅ SUPABASE v2 INIT
+const { createClient } = supabase;
+
+const supabaseClient = createClient(
     "https://ixcylpmyupmoarebbhjy.supabase.co",
     "sb_publishable_c1Wmk7ON_QO4xorRQmkXNg_23q-OcEl"
 );
 
 // 📥 LOAD FEATURES
 async function loadFeatures() {
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
         .from("features")
         .select("*")
         .order("votes", { ascending: false });
@@ -63,11 +65,11 @@ async function loadFeatures() {
 // ➕ ADD FEATURE
 async function addFeature() {
     const input = document.getElementById("input");
-
     const value = input.value.trim();
+
     if (!value) return;
 
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from("features")
         .insert([
             {
@@ -87,7 +89,7 @@ async function addFeature() {
 
 // 👍 VOTE
 async function vote(id, votes) {
-    const { error } = await supabase
+    const { error } = await supabaseClient
         .from("features")
         .update({ votes: votes + 1 })
         .eq("id", id);
