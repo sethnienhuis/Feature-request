@@ -35,14 +35,10 @@ body {
 <div id="list"></div>
 
 <script>
-    if (window.__SUPABASE_LOADED__) {
-    throw new Error("Supabase script already loaded");
-}
-window.__SUPABASE_LOADED__ = true;
     
     console.log("SCRIPT LOADED");
 // 🔑 SUPABASE INIT (MOET BOVENAAN)
-const supabase = window.supabase.createClient(
+window.supabaseClient = window.supabaseClient || window.supabase.createClient(
     "https://ixcylpmyupmoarebbhjy.supabase.co",
     "sb_publishable_c1Wmk7ON_QO4xorRQmkXNg_23q-OcEl"
 );
