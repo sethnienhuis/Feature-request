@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Feature Requests</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -10,28 +11,71 @@
 body {
     font-family: -apple-system, sans-serif;
     background: #f5f5f7;
-    padding: 40px;
-    max-width: 600px;
-    margin: auto;
+    padding: 16px;
+    margin: 0;
 }
 
+h1 {
+    font-size: 22px;
+    margin-bottom: 16px;
+}
+
+/* INPUT ROW */
+.input-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+input {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+    font-size: 16px;
+}
+
+button {
+    padding: 12px 16px;
+    border-radius: 10px;
+    border: none;
+    background: black;
+    color: white;
+    font-size: 16px;
+}
+
+/* FEATURE CARD */
 .feature {
     background: white;
-    padding: 15px;
+    padding: 14px;
     margin-top: 10px;
-    border-radius: 10px;
+    border-radius: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* TOP ROW */
+.feature-top {
+    font-size: 15px;
+    line-height: 1.4;
+}
+
+/* BOTTOM ROW */
+.feature-bottom {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-    .badge {
-    font-size: 12px;
+
+/* BADGE */
+.badge {
+    font-size: 11px;
     padding: 4px 10px;
     border-radius: 999px;
-    text-transform: capitalize;
 }
 
-/* STATUS STYLES */
+/* STATUS COLORS */
 .badge.open {
     background: #e5e7eb;
     color: #374151;
@@ -51,9 +95,16 @@ body {
     background: #d1fae5;
     color: #065f46;
 }
+
+/* VOTE BUTTON */
+.vote-btn {
+    font-size: 14px;
+    padding: 8px 12px;
+    border-radius: 999px;
+}
     
 button:disabled {
-    opacity: 0.5;
+    background: #a3a3a3;
     cursor: not-allowed;
 }
 </style>
@@ -63,8 +114,10 @@ button:disabled {
 
 <h1>Feature Requests 🚀</h1>
 
-<input id="input" placeholder="Suggest a feature..." />
-<button onclick="addFeature()">Add</button>
+<div class="input-row">
+    <input id="input" placeholder="Suggest a feature..." />
+    <button onclick="addFeature()">Add</button>
+</div>
 
 <div id="list"></div>
 
@@ -166,21 +219,22 @@ function render(features) {
         const hasVoted = voted.includes(f.id);
 
         div.innerHTML = `
-            <span>${f.text}</span>
-
-            <div style="display:flex; gap:10px; align-items:center;">
-                
+            <div class="feature-top">
+                ${f.text}
+            </div>
+        
+            <div class="feature-bottom">
                 <span class="badge ${status}">
                     ${status.replace("_", " ")}
                 </span>
-
+        
                 <button 
+                    class="vote-btn"
                     onclick="vote(${f.id}, ${f.votes})"
                     ${hasVoted ? "disabled" : ""}
                 >
                     👍 ${f.votes}
                 </button>
-
             </div>
         `;
 
