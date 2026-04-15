@@ -35,6 +35,11 @@ body {
 <div id="list"></div>
 
 <script>
+    if (window.__SUPABASE_LOADED__) {
+    throw new Error("Supabase script already loaded");
+}
+window.__SUPABASE_LOADED__ = true;
+    
     console.log("SCRIPT LOADED");
 // 🔑 SUPABASE INIT (MOET BOVENAAN)
 const supabase = window.supabase.createClient(
