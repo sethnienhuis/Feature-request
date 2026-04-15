@@ -3,9 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <title>Feature Requests</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <style>
 body {
     font-family: -apple-system, sans-serif;
@@ -24,88 +22,61 @@ body {
 }
 </style>
 </head>
-
 <body>
-
 <h1>Feature Requests 🚀</h1>
-
 <input id="input" placeholder="Suggest a feature..." />
 <button onclick="addFeature()">Add</button>
-
 <div id="list"></div>
-
 <script>
-// 🔑 SUPABASE INIT (MOET BOVENAAN)
 const supabase = window.supabase.createClient(
     "https://ixcylpmyupmoarebbhjy.supabase.co",
     "sb_publishable_c1Wmk7ON_QO4xorRQmkXNg_23q-OcEl"
 );
 
-// 📥 LOAD FEATURES
 async function loadFeatures() {
     const { data, error } = await supabase
         .from("features")
         .select("*")
         .order("votes", { ascending: false });
-
-    if (error) console.log(error);
-
+    if (error) console.error(error);
     render(data || []);
 }
 
-// ➕ ADD FEATURE
 async function addFeature() {
     const input = document.getElementById("input");
-
-    if (!input.value) return;
-
+    if (!input.value.trim()) return;
     const { error } = await supabase
         .from("features")
-        .insert([
-            { text: input.value, votes: 0 }
-        ]);
-
-    if (error) console.log(error);
-
+        .insert([{ text: input.value, votes: 0 }]);
+    if (error) console.error(error);
     input.value = "";
     loadFeatures();
 }
 
-// 👍 VOTE
 async function vote(id, votes) {
     const { error } = await supabase
         .from("features")
         .update({ votes: votes + 1 })
         .eq("id", id);
-
-    if (error) console.log(error);
-
+    if (error) console.error(error);
     loadFeatures();
 }
 
-// 🎨 RENDER
 function render(features) {
     const list = document.getElementById("list");
     list.innerHTML = "";
-
     features.forEach(f => {
         const div = document.createElement("div");
         div.className = "feature";
-
         div.innerHTML = `
             <span>${f.text}</span>
-            <button onclick="vote(${f.id}, ${f.votes})">
-                👍 ${f.votes}
-            </button>
+            <button onclick="vote(${f.id}, ${f.votes})">👍 ${f.votes}</button>
         `;
-
         list.appendChild(div);
     });
 }
 
-// 🚀 START
 loadFeatures();
 </script>
-
 </body>
 </html>
