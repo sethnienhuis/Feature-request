@@ -35,31 +35,22 @@ body {
 <div id="list"></div>
 
 <script>
-
-    async function loadFeatures() {
-    const { data, error } = await supabase
-        .from("features")
-        .select("*");
-
-    console.log("DATA:", data);
-    console.log("ERROR:", error);
-
-    render(data || []);
-}
-// 🔑 PLAK HIER JOUW KEYS
+// 🔑 SUPABASE INIT (MOET BOVENAAN)
 const supabase = window.supabase.createClient(
-    "https://ixcylpmyupmoarebbhjy.supabase.co",
-    "sb_publishable_c1Wmk7ON_QO4xorRQmkXNg_23q-OcEl"
+    "...",
+    "..."
 );
 
 // 📥 LOAD FEATURES
 async function loadFeatures() {
-    const { data } = await supabase
+    const { data, error } = await supabase
         .from("features")
         .select("*")
         .order("votes", { ascending: false });
 
-    render(data);
+    if (error) console.log(error);
+
+    render(data || []);
 }
 
 // ➕ ADD FEATURE
@@ -68,9 +59,13 @@ async function addFeature() {
 
     if (!input.value) return;
 
-    await supabase.from("features").insert([
-        { text: input.value, votes: 0 }
-    ]);
+    const { error } = await supabase
+        .from("features")
+        .insert([
+            { text: input.value, votes: 0 }
+        ]);
+
+    if (error) console.log(error);
 
     input.value = "";
     loadFeatures();
@@ -78,10 +73,12 @@ async function addFeature() {
 
 // 👍 VOTE
 async function vote(id, votes) {
-    await supabase
+    const { error } = await supabase
         .from("features")
         .update({ votes: votes + 1 })
         .eq("id", id);
+
+    if (error) console.log(error);
 
     loadFeatures();
 }
@@ -106,7 +103,7 @@ function render(features) {
     });
 }
 
-// 🚀 INIT
+// 🚀 START
 loadFeatures();
 </script>
 
