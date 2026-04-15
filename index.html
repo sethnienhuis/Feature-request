@@ -92,12 +92,12 @@ function render(features) {
         const div = document.createElement("div");
         div.className = "feature";
 
-        div.innerHTML = 
+        div.innerHTML = `
             <span>${f.text}</span>
             <button onclick="vote(${f.id}, ${f.votes})">
                 👍 ${f.votes}
             </button>
-        ;
+        `;
 
         list.appendChild(div);
     });
