@@ -39,7 +39,7 @@ body {
 <script>
 console.log("SCRIPT LOADED");
 
-// ✅ SINGLE SOURCE OF TRUTH
+// 🔒 SAFE INIT (NO DUPLICATES EVER)
 const supabase = window.supabase.createClient(
     "https://ixcylpmyupmoarebbhjy.supabase.co",
     "sb_publishable_c1Wmk7ON_QO4xorRQmkXNg_23q-OcEl"
@@ -64,13 +64,14 @@ async function loadFeatures() {
 async function addFeature() {
     const input = document.getElementById("input");
 
-    if (!input.value.trim()) return;
+    const value = input.value.trim();
+    if (!value) return;
 
     const { error } = await supabase
         .from("features")
         .insert([
             {
-                text: input.value.trim(),
+                text: value,
                 votes: 0
             }
         ]);
