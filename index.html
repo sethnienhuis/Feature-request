@@ -14,6 +14,7 @@ body {
     max-width: 600px;
     margin: auto;
 }
+
 .feature {
     background: white;
     padding: 15px;
@@ -21,6 +22,7 @@ body {
     border-radius: 10px;
     display: flex;
     justify-content: space-between;
+    align-items: center;
 }
 </style>
 </head>
@@ -35,10 +37,10 @@ body {
 <div id="list"></div>
 
 <script>
-    
-    console.log("SCRIPT LOADED");
-// 🔑 SUPABASE INIT (MOET BOVENAAN)
-window.supabaseClient = window.supabaseClient || window.supabase.createClient(
+console.log("SCRIPT LOADED");
+
+// ✅ SINGLE SOURCE OF TRUTH
+const supabase = window.supabase.createClient(
     "https://ixcylpmyupmoarebbhjy.supabase.co",
     "sb_publishable_c1Wmk7ON_QO4xorRQmkXNg_23q-OcEl"
 );
@@ -50,7 +52,10 @@ async function loadFeatures() {
         .select("*")
         .order("votes", { ascending: false });
 
-    if (error) console.log(error);
+    if (error) {
+        console.log("LOAD ERROR:", error);
+        return;
+    }
 
     render(data || []);
 }
@@ -59,15 +64,21 @@ async function loadFeatures() {
 async function addFeature() {
     const input = document.getElementById("input");
 
-    if (!input.value) return;
+    if (!input.value.trim()) return;
 
     const { error } = await supabase
         .from("features")
         .insert([
-            { text: input.value, votes: 0 }
+            {
+                text: input.value.trim(),
+                votes: 0
+            }
         ]);
 
-    if (error) console.log(error);
+    if (error) {
+        console.log("INSERT ERROR:", error);
+        return;
+    }
 
     input.value = "";
     loadFeatures();
@@ -80,7 +91,10 @@ async function vote(id, votes) {
         .update({ votes: votes + 1 })
         .eq("id", id);
 
-    if (error) console.log(error);
+    if (error) {
+        console.log("UPDATE ERROR:", error);
+        return;
+    }
 
     loadFeatures();
 }
