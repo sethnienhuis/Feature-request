@@ -111,11 +111,22 @@ function render(features) {
         const div = document.createElement("div");
         div.className = "feature";
 
+        const status = f.status || "open";
+
         div.innerHTML = `
             <span>${f.text}</span>
-            <button onclick="vote(${f.id}, ${f.votes})">
-                👍 ${f.votes}
-            </button>
+
+            <div style="display:flex; gap:10px; align-items:center;">
+                
+                <span class="badge ${status}">
+                    ${status.replace("_", " ")}
+                </span>
+
+                <button onclick="vote(${f.id}, ${f.votes})">
+                    👍 ${f.votes}
+                </button>
+
+            </div>
         `;
 
         list.appendChild(div);
