@@ -35,6 +35,17 @@ body {
 <div id="list"></div>
 
 <script>
+
+    async function loadFeatures() {
+    const { data, error } = await supabase
+        .from("features")
+        .select("*");
+
+    console.log("DATA:", data);
+    console.log("ERROR:", error);
+
+    render(data || []);
+}
 // 🔑 PLAK HIER JOUW KEYS
 const supabase = window.supabase.createClient(
     "https://ixcylpmyupmoarebbhjy.supabase.co",
