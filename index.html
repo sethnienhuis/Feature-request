@@ -9,6 +9,9 @@
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <style>
+/* =========================
+   ROOT / THEME
+========================= */
 :root {
     --bg:#f5f5f7;
     --card:#fff;
@@ -26,21 +29,31 @@
     --border:#2a2a2c;
 }}
 
+/* =========================
+   BASE LAYOUT
+========================= */
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text",
-                 system-ui, Roboto, Helvetica, Arial, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont,
+                 "SF Pro Text", system-ui, Arial, sans-serif;
     background: var(--bg);
     color: var(--text);
     margin: 0;
     padding: 16px;
 }
 
-/* HEADER */
+#home, #add, #detail {
+    max-width: 520px;
+    margin: 0 auto;
+}
+
+/* =========================
+   HEADER
+========================= */
 .header {
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:16px;
+    margin-bottom:12px;
 }
 
 .icon-btn {
@@ -53,39 +66,73 @@ body {
     font-size:18px;
 }
 
-/* INPUT */
-input, textarea {
+/* =========================
+   INPUTS
+========================= */
+.input-row {
+    display:grid;
+    grid-template-columns: 1fr 120px;
+    gap:8px;
+    margin-bottom:12px;
+}
+
+input, textarea, select {
     width:100%;
+    box-sizing:border-box;
     padding:12px;
     border-radius:12px;
     border:1px solid var(--border);
-    margin-bottom:10px;
     background:var(--card);
     color:var(--text);
+    font-size:16px;
 }
 
-/* CARD */
+textarea {
+    resize:none;
+    height:90px;
+}
+
+/* =========================
+   BUTTON
+========================= */
+button {
+    width:100%;
+    padding:14px;
+    border-radius:12px;
+    border:none;
+    background:var(--text);
+    color:var(--bg);
+    font-size:16px;
+    font-weight:600;
+}
+
+/* =========================
+   FEATURE CARD
+========================= */
 .feature {
     background:var(--card);
     padding:14px;
     border-radius:16px;
     margin-top:10px;
     border:1px solid var(--border);
-    cursor:pointer;
 }
 
 .feature-title {
     font-weight:600;
     margin-bottom:6px;
+    word-break:break-word;
 }
 
 .feature-bottom {
     display:flex;
     justify-content:space-between;
     align-items:center;
+    margin-top:10px;
 }
 
-/* TAG */
+/* =========================
+   TAGS
+========================= */
 .tag {
     font-size:10px;
     background:var(--border);
@@ -94,74 +141,49 @@ input, textarea {
     margin-right:4px;
 }
 
-/* VOTE */
-.vote-btn {
-    border:none;
-    background:var(--text);
-    color:var(--bg);
+/* =========================
+   STATUS
+========================= */
+.badge {
+    font-size:11px;
+    padding:4px 10px;
     border-radius:999px;
+    text-transform:capitalize;
+}
+
+.badge.open { background:#444; color:#fff; }
+.badge.in_progress { background:#f59e0b; color:#000; }
+.badge.done { background:#10b981; color:#000; }
+
+/* =========================
+   VOTE
+========================= */
+.vote-btn {
+    width:auto;
     padding:6px 10px;
+    border-radius:999px;
 }
 
-/* DETAIL */
-.desc {
-    color:var(--sub);
-    line-height:1.5;
-    margin-top:10px;
-}
-
-/* HIDDEN */
+/* =========================
+   HIDE
+========================= */
 .hidden { display:none; }
-
-#home, #add, #detail {
-    max-width: 520px;
-    margin: 0 auto;
-}
-
-input, textarea {
-    width: 100%;
-    box-sizing: border-box;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    margin-bottom: 10px;
-    background: var(--card);
-    color: var(--text);
-    font-size: 16px;
-}
-
-button {
-    width: 100%;
-    padding: 14px;
-    border-radius: 12px;
-    border: none;
-    background: var(--text);
-    color: var(--bg);
-    font-size: 16px;
-    font-weight: 600;
-}
-
-.feature-title {
-    font-weight: 600;
-    margin-bottom: 6px;
-    word-wrap: break-word;
-}
 
 </style>
 </head>
 
 <body>
 
-<!-- HOME -->
+<!-- ================= HOME ================= -->
+<div id="home">
+
 <div class="header">
     <h2>Feature Requests 🚀</h2>
     <button class="icon-btn" onclick="showPage('add')">+</button>
 </div>
 
-<!-- SEARCH + FILTER -->
 <div class="input-row">
-    <input id="search" placeholder="Search features..." oninput="applyFilters()" />
-
+    <input id="search" placeholder="Search..." oninput="applyFilters()" />
     <select id="statusFilter" onchange="applyFilters()">
         <option value="">All</option>
         <option value="open">Open</option>
@@ -170,45 +192,51 @@ button {
     </select>
 </div>
 
-<!-- ADD -->
-<div id="add" class="hidden">
-    <div class="header">
-        <button class="icon-btn" onclick="showPage('home')">←</button>
-        <h3>Add Feature</h3>
-        <div></div>
-    </div>
+<div id="list"></div>
 
-    <input id="title" placeholder="Title" />
-    <textarea id="descInput" placeholder="Description"></textarea>
-    <input id="tags" placeholder="Tags (UI, Performance)" />
-
-    <button onclick="addFeature()">Submit</button>
 </div>
 
-<!-- DETAIL -->
+<!-- ================= ADD ================= -->
+<div id="add" class="hidden">
+
+<div class="header">
+    <button class="icon-btn" onclick="showPage('home')">←</button>
+    <h3>Add Feature</h3>
+    <div></div>
+</div>
+
+<input id="title" placeholder="Title" />
+<textarea id="descInput" placeholder="Description"></textarea>
+<input id="tags" placeholder="Tags (UI, Performance)" />
+
+<button onclick="addFeature()">Submit</button>
+
+</div>
+
+<!-- ================= DETAIL ================= -->
 <div id="detail" class="hidden">
-    <div class="header">
-        <button class="icon-btn" onclick="showPage('home')">←</button>
-        <h3 id="detailTitle"></h3>
-        <div></div>
-    </div>
 
-    <div id="detailTags"></div>
-    <div class="desc" id="detailDesc"></div>
+<div class="header">
+    <button class="icon-btn" onclick="showPage('home')">←</button>
+    <h3 id="detailTitle"></h3>
+    <div></div>
+</div>
 
-    <div style="margin-top:20px;">
-        <button id="detailVote" class="vote-btn"></button>
-    </div>
+<div id="detailTags"></div>
+<p class="desc" id="detailDesc"></p>
+
+<button id="detailVote"></button>
+
 </div>
 
 <script>
 const supabaseClient = window.supabase.createClient(
     "https://ixcylpmyupmoarebbhjy.supabase.co",
-    "sb_publishable_c1Wmk7ON_QO4xorRQmkXNg_23q-OcEl"
+    "sb_publishable_..."
 );
 
 let features = [];
-let currentFeature = null;
+let current = null;
 
 /* NAV */
 function showPage(p) {
@@ -226,43 +254,57 @@ async function load() {
         .order("votes", { ascending:false });
 
     features = data || [];
-    render();
+    render(features);
+}
+
+/* FILTER */
+function applyFilters() {
+    const search = document.getElementById("search").value.toLowerCase();
+    const status = document.getElementById("statusFilter").value;
+
+    const filtered = features.filter(f => {
+        return (
+            (!search ||
+                f.title?.toLowerCase().includes(search) ||
+                f.description?.toLowerCase().includes(search)
+            ) &&
+            (!status || (f.status || "open") === status)
+        );
+    });
+
+    render(filtered);
 }
 
 /* RENDER */
-function render() {
+function render(data) {
     const list = document.getElementById("list");
     list.innerHTML = "";
 
-    features.forEach(f => {
+    data.forEach(f => {
         const div = document.createElement("div");
         div.className = "feature";
 
         div.innerHTML = `
             <div class="feature-title">${f.title}</div>
 
-            <div style="margin-bottom:6px;">
+            <div>
                 ${(f.tags || []).map(t => `<span class="tag">${t}</span>`).join("")}
             </div>
 
             <div class="feature-bottom">
                 <span class="badge ${f.status || 'open'}">
-                    ${(f.status || "open").replace("_"," ")}
+                    ${(f.status || 'open').replace("_"," ")}
                 </span>
 
-                <button class="vote-btn">
-                    👍 ${f.votes}
-                </button>
+                <button class="vote-btn">👍 ${f.votes}</button>
             </div>
         `;
 
-        // open detail
         div.onclick = (e) => {
             if (e.target.tagName === "BUTTON") return;
             openDetail(f);
         };
 
-        // vote on home (FIX #3)
         const btn = div.querySelector("button");
         btn.onclick = (e) => {
             e.stopPropagation();
@@ -275,7 +317,7 @@ function render() {
 
 /* DETAIL */
 function openDetail(f) {
-    currentFeature = f;
+    current = f;
 
     document.getElementById("detailTitle").innerText = f.title;
     document.getElementById("detailDesc").innerText = f.description;
@@ -298,7 +340,7 @@ async function addFeature() {
         .split(",")
         .map(t => t.trim());
 
-    if (title.length < 3) return alert("Title too short");
+    if (title.length < 3) return alert("Too short");
 
     await supabaseClient.from("features").insert([{
         title,
@@ -322,6 +364,7 @@ async function vote(id, votes) {
     load();
 }
 
+/* START */
 load();
 </script>
 
