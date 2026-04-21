@@ -9,9 +9,7 @@
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <style>
-/* =========================
-   ROOT / THEME
-========================= */
+/* ================= THEME ================= */
 :root {
     --bg:#f5f5f7;
     --card:#fff;
@@ -29,9 +27,7 @@
     --border:#2a2a2c;
 }}
 
-/* =========================
-   BASE LAYOUT
-========================= */
+/* ================= BASE ================= */
 body {
     font-family: -apple-system, BlinkMacSystemFont,
                  "SF Pro Text", system-ui, Arial, sans-serif;
@@ -46,14 +42,18 @@ body {
     margin: 0 auto;
 }
 
-/* =========================
-   HEADER
-========================= */
+/* ================= HEADER (FIXED CENTER) ================= */
 .header {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:12px;
+    display: grid;
+    grid-template-columns: 40px 1fr 40px;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.header h2,
+.header h3 {
+    text-align: center;
+    margin: 0;
 }
 
 .icon-btn {
@@ -66,9 +66,7 @@ body {
     font-size:18px;
 }
 
-/* =========================
-   INPUTS
-========================= */
+/* ================= INPUTS ================= */
 .input-row {
     display:grid;
     grid-template-columns: 1fr 120px;
@@ -92,9 +90,13 @@ textarea {
     height:90px;
 }
 
-/* =========================
-   BUTTON
-========================= */
+/* spacing FIX */
+#add input,
+#add textarea {
+    margin-bottom: 12px;
+}
+
+/* ================= BUTTON ================= */
 button {
     width:100%;
     padding:14px;
@@ -106,9 +108,7 @@ button {
     font-weight:600;
 }
 
-/* =========================
-   FEATURE CARD
-========================= */
+/* ================= CARD ================= */
 .feature {
     background:var(--card);
     padding:14px;
@@ -123,6 +123,7 @@ button {
     word-break:break-word;
 }
 
+/* ================= LAYOUT ================= */
 .feature-bottom {
     display:flex;
     justify-content:space-between;
@@ -130,9 +131,7 @@ button {
     margin-top:10px;
 }
 
-/* =========================
-   TAGS
-========================= */
+/* ================= TAGS ================= */
 .tag {
     font-size:10px;
     background:var(--border);
@@ -141,9 +140,7 @@ button {
     margin-right:4px;
 }
 
-/* =========================
-   STATUS
-========================= */
+/* ================= STATUS ================= */
 .badge {
     font-size:11px;
     padding:4px 10px;
@@ -155,18 +152,20 @@ button {
 .badge.in_progress { background:#f59e0b; color:#000; }
 .badge.done { background:#10b981; color:#000; }
 
-/* =========================
-   VOTE
-========================= */
+/* 🎀 NEW: coming soon */
+.badge.coming_soon {
+    background:#ff4d8d;
+    color:#fff;
+}
+
+/* ================= VOTE ================= */
 .vote-btn {
     width:auto;
     padding:6px 10px;
     border-radius:999px;
 }
 
-/* =========================
-   HIDE
-========================= */
+/* ================= HIDE ================= */
 .hidden { display:none; }
 
 </style>
@@ -178,6 +177,7 @@ button {
 <div id="home">
 
 <div class="header">
+    <div></div>
     <h2>Feature Requests 🚀</h2>
     <button class="icon-btn" onclick="showPage('add')">+</button>
 </div>
@@ -223,7 +223,7 @@ button {
 </div>
 
 <div id="detailTags"></div>
-<p class="desc" id="detailDesc"></p>
+<p id="detailDesc"></p>
 
 <button id="detailVote"></button>
 
@@ -236,7 +236,6 @@ const supabaseClient = window.supabase.createClient(
 );
 
 let features = [];
-let current = null;
 
 /* NAV */
 function showPage(p) {
@@ -246,14 +245,23 @@ function showPage(p) {
     document.getElementById(p).classList.remove("hidden");
 }
 
+/* TRENDING ALGORITHM */
+function getScore(f) {
+    const votes = f.votes || 0;
+    const age = (Date.now() - new Date(f.created_at || Date.now())) / 10000000;
+    return votes * 10 - age;
+}
+
 /* LOAD */
 async function load() {
     const { data } = await supabaseClient
         .from("features")
-        .select("*")
-        .order("votes", { ascending:false });
+        .select("*");
 
     features = data || [];
+
+    features.sort((a,b) => getScore(b) - getScore(a));
+
     render(features);
 }
 
@@ -317,8 +325,6 @@ function render(data) {
 
 /* DETAIL */
 function openDetail(f) {
-    current = f;
-
     document.getElementById("detailTitle").innerText = f.title;
     document.getElementById("detailDesc").innerText = f.description;
 
@@ -332,6 +338,30 @@ function openDetail(f) {
     showPage("detail");
 }
 
+/* VOTE (GLOBAL LOCK) */
+function getVoted() {
+    return JSON.parse(localStorage.getItem("voted") || "[]");
+}
+
+function saveVoted(v) {
+    localStorage.setItem("voted", JSON.stringify(v));
+}
+
+async function vote(id, votes) {
+    let voted = getVoted();
+    if (voted.includes(id)) return;
+
+    await supabaseClient
+        .from("features")
+        .update({ votes: votes + 1 })
+        .eq("id", id);
+
+    voted.push(id);
+    saveVoted(voted);
+
+    load();
+}
+
 /* ADD */
 async function addFeature() {
     const title = document.getElementById("title").value.trim();
@@ -340,7 +370,7 @@ async function addFeature() {
         .split(",")
         .map(t => t.trim());
 
-    if (title.length < 3) return alert("Too short");
+    if (title.length < 3) return;
 
     await supabaseClient.from("features").insert([{
         title,
@@ -351,16 +381,6 @@ async function addFeature() {
     }]);
 
     showPage("home");
-    load();
-}
-
-/* VOTE */
-async function vote(id, votes) {
-    await supabaseClient
-        .from("features")
-        .update({ votes: votes + 1 })
-        .eq("id", id);
-
     load();
 }
 
