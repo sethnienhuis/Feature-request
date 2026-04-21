@@ -64,6 +64,9 @@ body {
     background:var(--card);
     color:var(--text);
     font-size:18px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 }
 
 /* ================= INPUTS ================= */
@@ -167,6 +170,21 @@ button {
 
 /* ================= HIDE ================= */
 .hidden { display:none; }
+
+.vote-btn {
+    width:auto;
+    padding:6px 10px;
+    border-radius:999px;
+    opacity: 1;
+    transition: 0.2s ease;
+}
+
+/* already voted = lighter */
+.vote-btn.voted {
+    opacity: 0.4;
+    transform: scale(0.95);
+}
+    
 
 </style>
 </head>
@@ -304,7 +322,9 @@ function render(data) {
                     ${(f.status || 'open').replace("_"," ")}
                 </span>
 
-                <button class="vote-btn">👍 ${f.votes}</button>
+                <button class="vote-btn ${getVoted().includes(f.id) ? 'voted' : ''}">     
+                    👍 ${f.votes} 
+                </button>
             </div>
         `;
 
@@ -351,13 +371,13 @@ async function vote(id, votes) {
     let voted = getVoted();
     if (voted.includes(id)) return;
 
+    voted.push(id);
+    saveVoted(voted);
+
     await supabaseClient
         .from("features")
         .update({ votes: votes + 1 })
         .eq("id", id);
-
-    voted.push(id);
-    saveVoted(voted);
 
     load();
 }
@@ -372,17 +392,86 @@ async function addFeature() {
 
     if (title.length < 3) return;
 
+    const match = findClosestMatch(title);
+
+    if (match && match.score > 0.55) {
+        const ok = confirm(
+            `This looks similar to:\n\n"${match.item.title}"\n\nDo you still want to post it?`
+        );
+
+        if (!ok) return;
+    }
+
     await supabaseClient.from("features").insert([{
         title,
         description,
         tags,
-        votes:0,
-        status:"open"
+        votes: 0,
+        status: "open"
     }]);
 
     showPage("home");
     load();
 }
+
+function levenshtein(a, b) {
+    const matrix = Array.from({ length: b.length + 1 }, () =>
+        new Array(a.length + 1).fill(0)
+    );
+
+    for (let i = 0; i <= b.length; i++) matrix[i][0] = i;
+    for (let j = 0; j <= a.length; j++) matrix[0][j] = j;
+
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b[i - 1] === a[j - 1]) {
+                matrix[i][j] = matrix[i - 1][j - 1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i - 1][j] + 1,
+                    matrix[i][j - 1] + 1,
+                    matrix[i - 1][j - 1] + 1
+                );
+            }
+        }
+    }
+
+    return matrix[b.length][a.length];
+}
+
+function normalize(text) {
+    return text
+        .toLowerCase()
+        .replace(/[^a-z0-9\s]/g, "")
+        .split(" ")
+        .filter(Boolean);
+}
+
+function similarity(a, b) {
+    const aWords = normalize(a);
+    const bWords = normalize(b);
+
+    const intersection = aWords.filter(w => bWords.includes(w)).length;
+    const union = new Set([...aWords, ...bWords]).size;
+
+    return intersection / union;
+}
+
+function findClosestMatch(title) {
+    let best = null;
+
+    for (const f of features) {
+        const score = similarity(title, f.title);
+
+        if (!best || score > best.score) {
+            best = { item: f, score };
+        }
+    }
+
+    return best;
+}
+
+    
 
 /* START */
 load();
