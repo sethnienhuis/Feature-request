@@ -7,347 +7,260 @@
 <title>Feature Requests</title>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    
+
 <style>
 :root {
-    --bg: #f5f5f7;
-    --card: #ffffff;
-    --text: #000;
-    --sub: #666;
-    --border: #e5e5e7;
+    --bg:#f5f5f7;
+    --card:#fff;
+    --text:#000;
+    --sub:#666;
+    --border:#e5e5e7;
 }
 
 @media (prefers-color-scheme: dark) {
-    :root {
-        --bg: #0b0b0c;
-        --card: #1c1c1e;
-        --text: #fff;
-        --sub: #9ca3af;
-        --border: #2a2a2c;
-    }
-}
+:root {
+    --bg:#0b0b0c;
+    --card:#1c1c1e;
+    --text:#fff;
+    --sub:#9ca3af;
+    --border:#2a2a2c;
+}}
 
 body {
-    font-family: -apple-system, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    padding: 16px;
-    margin: 0;
+    font-family:-apple-system;
+    background:var(--bg);
+    color:var(--text);
+    margin:0;
+    padding:16px;
 }
 
-/* NAV */
-.nav {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 16px;
+/* HEADER */
+.header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
 }
 
-.nav button {
-    background: var(--card);
-    color: var(--text);
-    border: 1px solid var(--border);
+.icon-btn {
+    width:36px;
+    height:36px;
+    border-radius:999px;
+    border:none;
+    background:var(--card);
+    color:var(--text);
+    font-size:18px;
 }
 
 /* INPUT */
-.input-row {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
-}
-
-input, select {
-    flex: 1;
-    padding: 12px;
-    border-radius: 10px;
-    border: 1px solid var(--border);
-    background: var(--card);
-    color: var(--text);
-}
-
-button {
-    padding: 12px 14px;
-    border-radius: 10px;
-    border: none;
-    background: var(--text);
-    color: var(--bg);
-    font-weight: 500;
+input, textarea {
+    width:100%;
+    padding:12px;
+    border-radius:12px;
+    border:1px solid var(--border);
+    margin-bottom:10px;
+    background:var(--card);
+    color:var(--text);
 }
 
 /* CARD */
 .feature {
-    background: var(--card);
-    padding: 14px;
-    margin-top: 10px;
-    border-radius: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    border: 1px solid var(--border);
-    animation: fadeIn 0.25s ease;
+    background:var(--card);
+    padding:14px;
+    border-radius:16px;
+    margin-top:10px;
+    border:1px solid var(--border);
+    cursor:pointer;
 }
 
-.feature-top {
-    font-size: 15px;
+.feature-title {
+    font-weight:600;
+    margin-bottom:6px;
 }
 
 .feature-bottom {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
 }
-
-/* BADGE */
-.badge {
-    font-size: 11px;
-    padding: 4px 10px;
-    border-radius: 999px;
-    text-transform: capitalize;
-}
-
-/* COLORS */
-.badge.open { background:#444; color:#fff; }
-.badge.in_progress { background:#f59e0b; color:#000; }
-.badge.done { background:#10b981; color:#000; }
-.badge.coming_soon { background:#3b82f6; color:#fff; }
 
 /* TAG */
 .tag {
-    font-size: 10px;
-    padding: 3px 8px;
-    border-radius: 999px;
-    background: var(--border);
+    font-size:10px;
+    background:var(--border);
+    padding:3px 8px;
+    border-radius:999px;
+    margin-right:4px;
 }
 
 /* VOTE */
 .vote-btn {
-    border-radius: 999px;
-    padding: 8px 12px;
-    transition: transform 0.15s ease;
+    border:none;
+    background:var(--text);
+    color:var(--bg);
+    border-radius:999px;
+    padding:6px 10px;
 }
 
-.vote-btn:active {
-    transform: scale(1.2);
+/* DETAIL */
+.desc {
+    color:var(--sub);
+    line-height:1.5;
+    margin-top:10px;
 }
 
-/* BOUNCE ANIMATION */
-.bounce {
-    animation: bounce 0.4s ease;
-}
-
-@keyframes bounce {
-    0% { transform: scale(1); }
-    40% { transform: scale(1.4); }
-    100% { transform: scale(1); }
-}
-
-/* SKELETON */
-.skeleton {
-    height: 60px;
-    border-radius: 16px;
-    margin-top: 10px;
-    background: linear-gradient(90deg,#222 25%,#333 50%,#222 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.2s infinite;
-}
-
-@keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-
-.hidden { display: none; }
-
-h1 { margin-bottom: 10px; }
-p.desc { color: var(--sub); margin-bottom: 16px; }
+/* HIDDEN */
+.hidden { display:none; }
 
 </style>
 </head>
 
 <body>
 
-<div class="nav">
-    <button onclick="showPage('home')">Home</button>
-    <button onclick="showPage('submit')">Submit</button>
-</div>
-
 <!-- HOME -->
 <div id="home">
+    <div class="header">
+        <h2>Feature Requests 🚀</h2>
+        <button class="icon-btn" onclick="showPage('add')">+</button>
+    </div>
 
-<h1>Feature Requests 🚀</h1>
-
-<div class="input-row">
-    <input id="search" placeholder="Search..." oninput="filterFeatures()" />
-    <select id="statusFilter" onchange="filterFeatures()">
-        <option value="">All</option>
-        <option value="open">Open</option>
-        <option value="in_progress">In Progress</option>
-        <option value="done">Done</option>
-    </select>
+    <div id="list"></div>
 </div>
 
-<div id="list"></div>
+<!-- ADD -->
+<div id="add" class="hidden">
+    <div class="header">
+        <button class="icon-btn" onclick="showPage('home')">←</button>
+        <h3>Add Feature</h3>
+        <div></div>
+    </div>
 
+    <input id="title" placeholder="Title" />
+    <textarea id="descInput" placeholder="Description"></textarea>
+    <input id="tags" placeholder="Tags (UI, Performance)" />
+
+    <button onclick="addFeature()">Submit</button>
 </div>
 
-<!-- SUBMIT PAGE -->
-<div id="submit" class="hidden">
+<!-- DETAIL -->
+<div id="detail" class="hidden">
+    <div class="header">
+        <button class="icon-btn" onclick="showPage('home')">←</button>
+        <h3 id="detailTitle"></h3>
+        <div></div>
+    </div>
 
-<h1>Submit Feedback ✍️</h1>
-<p class="desc">Have an idea to improve the app? Describe it clearly so others can vote on it.</p>
+    <div id="detailTags"></div>
+    <div class="desc" id="detailDesc"></div>
 
-<div class="input-row">
-    <input id="input" placeholder="Your idea..." />
-</div>
-
-<div class="input-row">
-    <input id="tags" placeholder="Tags (e.g. UI, Performance)" />
-</div>
-
-<button onclick="addFeature()">Submit</button>
-
+    <div style="margin-top:20px;">
+        <button id="detailVote" class="vote-btn"></button>
+    </div>
 </div>
 
 <script>
-const { createClient } = supabase;
-
-const supabaseClient = createClient(
+const supabaseClient = window.supabase.createClient(
     "https://ixcylpmyupmoarebbhjy.supabase.co",
-    "sb_publishable_c1Wmk7ON_QO4xorRQmkXNg_23q-OcEl"
+    "sb_publishable_..."
 );
 
-let allFeatures = [];
+let features = [];
+let currentFeature = null;
 
-/* PAGE SWITCH */
-function showPage(page) {
-    document.getElementById("home").classList.add("hidden");
-    document.getElementById("submit").classList.add("hidden");
-    document.getElementById(page).classList.remove("hidden");
-}
-
-/* VOTED STORAGE */
-function getVoted() {
-    return JSON.parse(localStorage.getItem("voted") || "[]");
-}
-function saveVoted(ids) {
-    localStorage.setItem("voted", JSON.stringify(ids));
+/* NAV */
+function showPage(p) {
+    ["home","add","detail"].forEach(id =>
+        document.getElementById(id).classList.add("hidden")
+    );
+    document.getElementById(p).classList.remove("hidden");
 }
 
 /* LOAD */
-async function loadFeatures() {
-    const list = document.getElementById("list");
-    list.innerHTML = `<div class="skeleton"></div><div class="skeleton"></div>`;
-
+async function load() {
     const { data } = await supabaseClient
         .from("features")
         .select("*")
-        .order("votes", { ascending: false });
+        .order("votes", { ascending:false });
 
-    allFeatures = data || [];
-    render(allFeatures);
-}
-
-/* ADD */
-let lastSubmit = 0;
-
-async function addFeature() {
-    const now = Date.now();
-    if (now - lastSubmit < 5000) {
-        alert("Slow down 😅");
-        return;
-    }
-
-    const text = document.getElementById("input").value.trim();
-    const tags = document.getElementById("tags").value.split(",");
-
-    if (text.length < 5) return alert("Too short");
-
-    await supabaseClient.from("features").insert([{
-        text,
-        votes: 0,
-        status: "open",
-        tags
-    }]);
-
-    lastSubmit = now;
-    showPage("home");
-    loadFeatures();
-}
-
-/* VOTE */
-async function vote(id, votes, btn) {
-    let voted = getVoted();
-    if (voted.includes(id)) return;
-
-    await supabaseClient
-        .from("features")
-        .update({ votes: votes + 1 })
-        .eq("id", id);
-
-    voted.push(id);
-    saveVoted(voted);
-
-    btn.classList.add("bounce");
-    setTimeout(() => btn.classList.remove("bounce"), 400);
-
-    loadFeatures();
-}
-
-/* FILTER */
-function filterFeatures() {
-    const search = document.getElementById("search").value.toLowerCase();
-    const status = document.getElementById("statusFilter").value;
-
-    let filtered = allFeatures.filter(f => {
-        return (!search || f.text.toLowerCase().includes(search)) &&
-               (!status || f.status === status);
-    });
-
-    render(filtered);
+    features = data || [];
+    render();
 }
 
 /* RENDER */
-function render(features) {
+function render() {
     const list = document.getElementById("list");
     list.innerHTML = "";
-
-    const voted = getVoted();
 
     features.forEach(f => {
         const div = document.createElement("div");
         div.className = "feature";
 
-        const hasVoted = voted.includes(f.id);
-
         div.innerHTML = `
-            <div class="feature-top">${f.text}</div>
-
+            <div class="feature-title">${f.title}</div>
             <div>
                 ${(f.tags || []).map(t => `<span class="tag">${t}</span>`).join("")}
             </div>
-
             <div class="feature-bottom">
-                <span class="badge ${f.status}">
-                    ${f.status.replace("_"," ")}
-                </span>
-
-                <button 
-                    class="vote-btn"
-                    ${hasVoted ? "disabled" : ""}
-                >
-                    👍 ${f.votes}
-                </button>
+                <span>${f.votes} votes</span>
             </div>
         `;
 
-        const btn = div.querySelector("button");
-        btn.onclick = () => vote(f.id, f.votes, btn);
+        div.onclick = () => openDetail(f);
 
         list.appendChild(div);
     });
 }
 
-/* START */
-loadFeatures();
+/* DETAIL */
+function openDetail(f) {
+    currentFeature = f;
+
+    document.getElementById("detailTitle").innerText = f.title;
+    document.getElementById("detailDesc").innerText = f.description;
+
+    document.getElementById("detailTags").innerHTML =
+        (f.tags || []).map(t => `<span class="tag">${t}</span>`).join("");
+
+    const btn = document.getElementById("detailVote");
+    btn.innerText = "👍 " + f.votes;
+    btn.onclick = () => vote(f.id, f.votes);
+
+    showPage("detail");
+}
+
+/* ADD */
+async function addFeature() {
+    const title = document.getElementById("title").value.trim();
+    const description = document.getElementById("descInput").value.trim();
+    const tags = document.getElementById("tags").value
+        .split(",")
+        .map(t => t.trim());
+
+    if (title.length < 3) return alert("Title too short");
+
+    await supabaseClient.from("features").insert([{
+        title,
+        description,
+        tags,
+        votes:0,
+        status:"open"
+    }]);
+
+    showPage("home");
+    load();
+}
+
+/* VOTE */
+async function vote(id, votes) {
+    await supabaseClient
+        .from("features")
+        .update({ votes: votes + 1 })
+        .eq("id", id);
+
+    load();
+}
+
+load();
 </script>
 
 </body>
