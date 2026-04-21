@@ -227,6 +227,8 @@ button {
 <textarea id="descInput" placeholder="Description"></textarea>
 <input id="tags" placeholder="Tags (UI, Performance)" />
 
+<div id="similarBox" style="margin-bottom:12px;"></div>
+
 <button onclick="addFeature()">Submit</button>
 
 </div>
@@ -281,6 +283,7 @@ async function load() {
     features.sort((a,b) => getScore(b) - getScore(a));
 
     render(features);
+    updateSimilar();
 }
 
 /* FILTER */
@@ -471,7 +474,66 @@ function findClosestMatch(title) {
     return best;
 }
 
-    
+function updateSimilar() {
+    const title = document.getElementById("title").value.trim();
+    const box = document.getElementById("similarBox");
+
+    if (!title || title.length < 2) {
+        box.innerHTML = "";
+        return;
+    }
+
+    const matches = features
+        .map(f => ({
+            ...f,
+            score: similarity(title, f.title)
+        }))
+        .filter(f => f.score > 0.25)
+        .sort((a,b) => b.score - a.score)
+        .slice(0, 5);
+
+    if (matches.length === 0) {
+        box.innerHTML = `
+            <div style="opacity:0.6;font-size:13px;margin-bottom:6px;">
+                No similar results
+            </div>
+        `;
+        return;
+    }
+
+    box.innerHTML = `
+        <div style="font-size:13px;margin-bottom:6px;opacity:0.7;">
+            Similar results
+        </div>
+
+        ${matches.map(f => `
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                align-items:center;
+                padding:8px;
+                margin-bottom:6px;
+                border:1px solid var(--border);
+                border-radius:10px;
+                background:var(--card);
+            ">
+                <div style="font-size:13px;">
+                    ${f.title}
+                </div>
+
+                <button
+                    class="vote-btn ${getVoted().includes(f.id) ? 'voted' : ''}"
+                    onclick="vote(${f.id}, ${f.votes})"
+                    style="width:auto;padding:4px 8px;font-size:12px;"
+                >
+                    👍 ${f.votes}
+                </button>
+            </div>
+        `).join("")}
+    `;
+}
+
+document.getElementById("title").addEventListener("input", updateSimilar);
 
 /* START */
 load();
