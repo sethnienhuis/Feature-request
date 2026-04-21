@@ -3,65 +3,93 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>Feature Requests</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
+:root {
+    --bg: #f5f5f7;
+    --card: #ffffff;
+    --text: #000;
+    --sub: #666;
+    --border: #e5e5e7;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #0b0b0c;
+        --card: #1c1c1e;
+        --text: #fff;
+        --sub: #9ca3af;
+        --border: #2a2a2c;
+    }
+}
+
 body {
     font-family: -apple-system, sans-serif;
-    background: #f5f5f7;
+    background: var(--bg);
+    color: var(--text);
     padding: 16px;
     margin: 0;
 }
 
-h1 {
-    font-size: 22px;
+/* NAV */
+.nav {
+    display: flex;
+    gap: 10px;
     margin-bottom: 16px;
 }
 
-/* INPUT ROW */
+.nav button {
+    background: var(--card);
+    color: var(--text);
+    border: 1px solid var(--border);
+}
+
+/* INPUT */
 .input-row {
     display: flex;
     gap: 8px;
-    margin-bottom: 16px;
+    margin-bottom: 12px;
 }
 
-input {
+input, select {
     flex: 1;
     padding: 12px;
     border-radius: 10px;
-    border: 1px solid #ddd;
-    font-size: 16px;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
 }
 
 button {
-    padding: 12px 16px;
+    padding: 12px 14px;
     border-radius: 10px;
     border: none;
-    background: black;
-    color: white;
-    font-size: 16px;
+    background: var(--text);
+    color: var(--bg);
+    font-weight: 500;
 }
 
-/* FEATURE CARD */
+/* CARD */
 .feature {
-    background: white;
+    background: var(--card);
     padding: 14px;
     margin-top: 10px;
-    border-radius: 14px;
+    border-radius: 16px;
     display: flex;
     flex-direction: column;
     gap: 10px;
+    border: 1px solid var(--border);
+    animation: fadeIn 0.25s ease;
 }
 
-/* TOP ROW */
 .feature-top {
     font-size: 15px;
-    line-height: 1.4;
 }
 
-/* BOTTOM ROW */
 .feature-bottom {
     display: flex;
     justify-content: space-between;
@@ -73,64 +101,113 @@ button {
     font-size: 11px;
     padding: 4px 10px;
     border-radius: 999px;
+    text-transform: capitalize;
 }
 
-/* STATUS COLORS */
-.badge.open {
-    background: #e5e7eb;
-    color: #374151;
-}
+/* COLORS */
+.badge.open { background:#444; color:#fff; }
+.badge.in_progress { background:#f59e0b; color:#000; }
+.badge.done { background:#10b981; color:#000; }
+.badge.coming_soon { background:#3b82f6; color:#fff; }
 
-.badge.coming_soon {
-    background: #dbeafe;
-    color: #1d4ed8;
-}
-
-.badge.in_progress {
-    background: #fef3c7;
-    color: #92400e;
-}
-
-.badge.done {
-    background: #d1fae5;
-    color: #065f46;
-}
-
-/* VOTE BUTTON */
-.vote-btn {
-    font-size: 14px;
-    padding: 8px 12px;
+/* TAG */
+.tag {
+    font-size: 10px;
+    padding: 3px 8px;
     border-radius: 999px;
+    background: var(--border);
 }
-    
-button:disabled {
-    background: #a3a3a3;
-    cursor: not-allowed;
+
+/* VOTE */
+.vote-btn {
+    border-radius: 999px;
+    padding: 8px 12px;
+    transition: transform 0.15s ease;
 }
+
+.vote-btn:active {
+    transform: scale(1.2);
+}
+
+/* BOUNCE ANIMATION */
+.bounce {
+    animation: bounce 0.4s ease;
+}
+
+@keyframes bounce {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.4); }
+    100% { transform: scale(1); }
+}
+
+/* SKELETON */
+.skeleton {
+    height: 60px;
+    border-radius: 16px;
+    margin-top: 10px;
+    background: linear-gradient(90deg,#222 25%,#333 50%,#222 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.2s infinite;
+}
+
+@keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+.hidden { display: none; }
+
+h1 { margin-bottom: 10px; }
+p.desc { color: var(--sub); margin-bottom: 16px; }
+
 </style>
 </head>
 
 <body>
 
+<div class="nav">
+    <button onclick="showPage('home')">Home</button>
+    <button onclick="showPage('submit')">Submit</button>
+</div>
+
+<!-- HOME -->
+<div id="home">
+
 <h1>Feature Requests 🚀</h1>
 
 <div class="input-row">
-    <input id="input" placeholder="Suggest a feature..." />
-    <button onclick="addFeature()">Add</button>
+    <input id="search" placeholder="Search..." oninput="filterFeatures()" />
+    <select id="statusFilter" onchange="filterFeatures()">
+        <option value="">All</option>
+        <option value="open">Open</option>
+        <option value="in_progress">In Progress</option>
+        <option value="done">Done</option>
+    </select>
 </div>
 
 <div id="list"></div>
 
+</div>
+
+<!-- SUBMIT PAGE -->
+<div id="submit" class="hidden">
+
+<h1>Submit Feedback ✍️</h1>
+<p class="desc">Have an idea to improve the app? Describe it clearly so others can vote on it.</p>
+
+<div class="input-row">
+    <input id="input" placeholder="Your idea..." />
+</div>
+
+<div class="input-row">
+    <input id="tags" placeholder="Tags (e.g. UI, Performance)" />
+</div>
+
+<button onclick="addFeature()">Submit</button>
+
+</div>
+
 <script>
-function getVoted() {
-    return JSON.parse(localStorage.getItem("voted") || "[]");
-}
-
-function saveVoted(ids) {
-    localStorage.setItem("voted", JSON.stringify(ids));
-}
-
-// ✅ SUPABASE v2 INIT
 const { createClient } = supabase;
 
 const supabaseClient = createClient(
@@ -138,73 +215,97 @@ const supabaseClient = createClient(
     "sb_publishable_c1Wmk7ON_QO4xorRQmkXNg_23q-OcEl"
 );
 
-// 📥 LOAD FEATURES
+let allFeatures = [];
+
+/* PAGE SWITCH */
+function showPage(page) {
+    document.getElementById("home").classList.add("hidden");
+    document.getElementById("submit").classList.add("hidden");
+    document.getElementById(page).classList.remove("hidden");
+}
+
+/* VOTED STORAGE */
+function getVoted() {
+    return JSON.parse(localStorage.getItem("voted") || "[]");
+}
+function saveVoted(ids) {
+    localStorage.setItem("voted", JSON.stringify(ids));
+}
+
+/* LOAD */
 async function loadFeatures() {
-    const { data, error } = await supabaseClient
+    const list = document.getElementById("list");
+    list.innerHTML = `<div class="skeleton"></div><div class="skeleton"></div>`;
+
+    const { data } = await supabaseClient
         .from("features")
         .select("*")
         .order("votes", { ascending: false });
 
-    if (error) {
-        console.log("LOAD ERROR:", error);
-        return;
-    }
-
-    render(data || []);
+    allFeatures = data || [];
+    render(allFeatures);
 }
 
-// ➕ ADD FEATURE
+/* ADD */
+let lastSubmit = 0;
+
 async function addFeature() {
-    const input = document.getElementById("input");
-    const value = input.value.trim();
-
-    if (!value) return;
-
-    const { error } = await supabaseClient
-        .from("features")
-        .insert([
-            {
-                text: value,
-                votes: 0,
-                status: "open"
-            }
-        ]);
-
-    if (error) {
-        console.log("INSERT ERROR:", error);
+    const now = Date.now();
+    if (now - lastSubmit < 5000) {
+        alert("Slow down 😅");
         return;
     }
 
-    input.value = "";
+    const text = document.getElementById("input").value.trim();
+    const tags = document.getElementById("tags").value.split(",");
+
+    if (text.length < 5) return alert("Too short");
+
+    await supabaseClient.from("features").insert([{
+        text,
+        votes: 0,
+        status: "open",
+        tags
+    }]);
+
+    lastSubmit = now;
+    showPage("home");
     loadFeatures();
 }
 
-// 👍 VOTE
-async function vote(id, votes) {
+/* VOTE */
+async function vote(id, votes, btn) {
     let voted = getVoted();
+    if (voted.includes(id)) return;
 
-    if (voted.includes(id)) {
-        alert("You already voted!");
-        return;
-    }
-
-    const { error } = await supabaseClient
+    await supabaseClient
         .from("features")
         .update({ votes: votes + 1 })
         .eq("id", id);
 
-    if (error) {
-        console.log("UPDATE ERROR:", error);
-        return;
-    }
-
     voted.push(id);
     saveVoted(voted);
+
+    btn.classList.add("bounce");
+    setTimeout(() => btn.classList.remove("bounce"), 400);
 
     loadFeatures();
 }
 
-// 🎨 RENDER
+/* FILTER */
+function filterFeatures() {
+    const search = document.getElementById("search").value.toLowerCase();
+    const status = document.getElementById("statusFilter").value;
+
+    let filtered = allFeatures.filter(f => {
+        return (!search || f.text.toLowerCase().includes(search)) &&
+               (!status || f.status === status);
+    });
+
+    render(filtered);
+}
+
+/* RENDER */
 function render(features) {
     const list = document.getElementById("list");
     list.innerHTML = "";
@@ -215,22 +316,22 @@ function render(features) {
         const div = document.createElement("div");
         div.className = "feature";
 
-        const status = f.status || "open";
         const hasVoted = voted.includes(f.id);
 
         div.innerHTML = `
-            <div class="feature-top">
-                ${f.text}
+            <div class="feature-top">${f.text}</div>
+
+            <div>
+                ${(f.tags || []).map(t => `<span class="tag">${t}</span>`).join("")}
             </div>
-        
+
             <div class="feature-bottom">
-                <span class="badge ${status}">
-                    ${status.replace("_", " ")}
+                <span class="badge ${f.status}">
+                    ${f.status.replace("_"," ")}
                 </span>
-        
+
                 <button 
                     class="vote-btn"
-                    onclick="vote(${f.id}, ${f.votes})"
                     ${hasVoted ? "disabled" : ""}
                 >
                     👍 ${f.votes}
@@ -238,11 +339,14 @@ function render(features) {
             </div>
         `;
 
+        const btn = div.querySelector("button");
+        btn.onclick = () => vote(f.id, f.votes, btn);
+
         list.appendChild(div);
     });
 }
 
-// 🚀 START
+/* START */
 loadFeatures();
 </script>
 
