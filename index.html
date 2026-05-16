@@ -9,184 +9,244 @@
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 
 <style>
-/* ================= THEME ================= */
+/* ================= MODERN MINIMAL + HUMAN APPROACHABLE ================= */
 :root {
-    --bg:#f5f5f7;
-    --card:#fff;
-    --text:#000;
-    --sub:#666;
-    --border:#e5e5e7;
+    --bg: oklch(99% 0.002 240);
+    --surface: oklch(100% 0 0);
+    --fg: oklch(18% 0.012 250);
+    --muted: oklch(54% 0.012 250);
+    --border: oklch(92% 0.005 250);
+    --accent: oklch(72% 0.17 55);
+    --accent-soft: oklch(95% 0.05 55);
+    --accent-strong: oklch(64% 0.18 55);
+    --success: oklch(74% 0.14 150);
+    --radius: 16px;
 }
 
-@media (prefers-color-scheme: dark) {
-:root {
-    --bg:#0b0b0c;
-    --card:#1c1c1e;
-    --text:#fff;
-    --sub:#9ca3af;
-    --border:#2a2a2c;
-}}
+* { box-sizing: border-box; }
 
-/* ================= BASE ================= */
 body {
-    font-family: -apple-system, BlinkMacSystemFont,
-                 "SF Pro Text", system-ui, Arial, sans-serif;
-    background: var(--bg);
-    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+    background: linear-gradient(180deg, #ffffff 0%, #f8f9fc 100%);
+    color: var(--fg);
     margin: 0;
-    padding: 16px;
+    min-height: 100dvh;
+    padding: clamp(14px, 3vw, 28px);
 }
 
 #home, #add, #detail {
-    max-width: 520px;
+    width: min(100%, 920px);
     margin: 0 auto;
 }
 
-/* ================= HEADER (FIXED CENTER) ================= */
+.panel {
+    background: color-mix(in oklch, var(--surface) 92%, #f7f8fb 8%);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: clamp(14px, 2.2vw, 24px);
+    box-shadow: 0 12px 36px rgba(20, 28, 40, 0.06);
+}
+
 .header {
     display: grid;
     grid-template-columns: 40px 1fr 40px;
     align-items: center;
-    margin-bottom: 12px;
+    gap: 8px;
+    margin-bottom: 16px;
 }
 
 .header h2,
 .header h3 {
-    text-align: center;
     margin: 0;
+    text-align: center;
+    font-size: clamp(1.15rem, 1.8vw, 1.45rem);
+    letter-spacing: -0.02em;
+}
+
+.subtitle {
+    color: var(--muted);
+    margin: 0 0 16px;
+    text-align: center;
+    font-size: 0.96rem;
 }
 
 .icon-btn {
-    width:36px;
-    height:36px;
-    border-radius:999px;
-    border:none;
-    background:var(--card);
-    color:var(--text);
-    font-size:18px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--fg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
 }
 
-/* ================= INPUTS ================= */
 .input-row {
-    display:grid;
-    grid-template-columns: 1fr 120px;
-    gap:8px;
-    margin-bottom:12px;
+    display: grid;
+    grid-template-columns: 1fr 138px;
+    gap: 10px;
+    margin-bottom: 8px;
 }
 
 input, textarea, select {
-    width:100%;
-    box-sizing:border-box;
-    padding:12px;
-    border-radius:12px;
-    border:1px solid var(--border);
-    background:var(--card);
-    color:var(--text);
-    font-size:16px;
+    width: 100%;
+    padding: 12px 13px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--fg);
+    font-size: 15px;
+    outline: none;
+}
+
+input:focus, textarea:focus, select:focus {
+    border-color: color-mix(in oklch, var(--accent) 54%, var(--border) 46%);
+    box-shadow: 0 0 0 4px color-mix(in oklch, var(--accent) 16%, white 84%);
 }
 
 textarea {
-    resize:none;
-    height:90px;
+    resize: vertical;
+    min-height: 110px;
 }
 
-/* spacing FIX */
 #add input,
 #add textarea {
     margin-bottom: 12px;
 }
 
-/* ================= BUTTON ================= */
 button {
-    width:100%;
-    padding:14px;
-    border-radius:12px;
-    border:none;
-    background:var(--text);
-    color:var(--bg);
-    font-size:16px;
-    font-weight:600;
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid transparent;
+    padding: 12px 14px;
+    font-size: 15px;
+    font-weight: 600;
+    background: var(--accent);
+    color: #2f1700;
+    cursor: pointer;
 }
 
-/* ================= CARD ================= */
+button:hover { background: var(--accent-strong); }
+
 .feature {
-    background:var(--card);
-    padding:14px;
-    border-radius:16px;
-    margin-top:10px;
-    border:1px solid var(--border);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px;
+    margin-top: 10px;
+    transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+
+.feature:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(18, 26, 40, 0.08);
 }
 
 .feature-title {
-    font-weight:600;
-    margin-bottom:6px;
-    word-break:break-word;
+    font-weight: 630;
+    margin-bottom: 7px;
+    letter-spacing: -0.015em;
+    word-break: break-word;
 }
 
-/* ================= LAYOUT ================= */
 .feature-bottom {
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-top:10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 11px;
 }
 
-/* ================= TAGS ================= */
 .tag {
-    font-size:10px;
-    background:var(--border);
-    padding:3px 8px;
-    border-radius:999px;
-    margin-right:4px;
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    background: color-mix(in oklch, var(--accent-soft) 42%, white 58%);
+    color: color-mix(in oklch, var(--accent-strong) 58%, var(--fg) 42%);
+    padding: 4px 9px;
+    border-radius: 999px;
+    margin: 0 5px 5px 0;
+    border: 1px solid color-mix(in oklch, var(--accent) 18%, var(--border) 82%);
 }
 
-/* ================= STATUS ================= */
 .badge {
-    font-size:11px;
-    padding:4px 10px;
-    border-radius:999px;
-    text-transform:capitalize;
+    font-size: 11px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    text-transform: capitalize;
+    font-weight: 600;
 }
 
-.badge.open { background:#444; color:#fff; }
-.badge.in_progress { background:#f59e0b; color:#000; }
-.badge.done { background:#10b981; color:#000; }
-
-/* 🎀 NEW: coming soon */
-.badge.coming_soon {
-    background:#ff4d8d;
-    color:#fff;
-}
-
-/* ================= VOTE ================= */
-.vote-btn {
-    width:auto;
-    padding:6px 10px;
-    border-radius:999px;
-}
-
-/* ================= HIDE ================= */
-.hidden { display:none; }
+.badge.open { background: #f1f4f8; color: #3c4a5a; }
+.badge.in_progress { background: #ffe8c6; color: #6f3d00; }
+.badge.done { background: #d8f4e5; color: #0d5c37; }
+.badge.coming_soon { background: #ffe0ec; color: #8a1742; }
 
 .vote-btn {
-    width:auto;
-    padding:6px 10px;
-    border-radius:999px;
-    opacity: 0.2;
-    border-style: solid;
-    transition: 0.2s ease;
+    width: auto;
+    border-radius: 999px;
+    padding: 6px 12px;
+    font-size: 13px;
+    font-weight: 600;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--fg);
+    opacity: 0.95;
+    transition: all 0.2s ease;
 }
 
-/* already voted = lighter */
+.vote-btn:hover {
+    border-color: color-mix(in oklch, var(--accent) 45%, var(--border) 55%);
+    background: color-mix(in oklch, var(--accent-soft) 22%, white 78%);
+}
+
 .vote-btn.voted {
-    opacity: 0.4;
-    transform: scale(0.95);
+    opacity: 0.56;
+    transform: scale(0.97);
 }
-    
 
+#detailDesc {
+    color: var(--muted);
+    line-height: 1.55;
+}
+
+#similarBox .similar-empty,
+#similarBox .similar-title {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+
+#similarBox .similar-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 9px 10px;
+    margin-bottom: 6px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    gap: 10px;
+}
+
+#similarBox .similar-item-text {
+    font-size: 13px;
+    color: var(--fg);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.hidden { display: none; }
+
+@media (max-width: 640px) {
+    .input-row {
+        grid-template-columns: 1fr;
+    }
+}
 </style>
 </head>
 
@@ -194,12 +254,14 @@ button {
 
 <!-- ================= HOME ================= -->
 <div id="home">
+<div class="panel">
 
 <div class="header">
     <div></div>
-    <h2>Feature Requests 🚀</h2>
+    <h2>Feedback Board</h2>
     <button class="icon-btn" onclick="showPage('add')">+</button>
 </div>
+<p class="subtitle">Share ideas, discover similar requests, and vote for what matters most.</p>
 
 <div class="input-row">
     <input id="search" placeholder="Search..." oninput="applyFilters()" />
@@ -214,15 +276,18 @@ button {
 <div id="list"></div>
 
 </div>
+</div>
 
 <!-- ================= ADD ================= -->
 <div id="add" class="hidden">
+<div class="panel">
 
 <div class="header">
     <button class="icon-btn" onclick="showPage('home')">←</button>
-    <h3>Add Feature</h3>
+    <h3>Submit Feedback</h3>
     <div></div>
 </div>
+<p class="subtitle">Describe your idea clearly so others can find and support it.</p>
 
 <input id="title" placeholder="Title" />
 <textarea id="descInput" placeholder="Description"></textarea>
@@ -233,9 +298,11 @@ button {
 <button onclick="addFeature()">Submit</button>
 
 </div>
+</div>
 
 <!-- ================= DETAIL ================= -->
 <div id="detail" class="hidden">
+<div class="panel">
 
 <div class="header">
     <button class="icon-btn" onclick="showPage('home')">←</button>
@@ -248,6 +315,7 @@ button {
 
 <button id="detailVote"></button>
 
+</div>
 </div>
 
 <script>
@@ -495,7 +563,7 @@ function updateSimilar() {
 
     if (matches.length === 0) {
         box.innerHTML = `
-            <div style="opacity:0.6;font-size:13px;margin-bottom:6px;">
+            <div class="similar-empty">
                 No similar results
             </div>
         `;
@@ -503,22 +571,13 @@ function updateSimilar() {
     }
 
     box.innerHTML = `
-        <div style="font-size:13px;margin-bottom:6px;opacity:0.7;">
+        <div class="similar-title">
             Similar results
         </div>
 
         ${matches.map(f => `
-            <div style="
-                display:flex;
-                justify-content:space-between;
-                align-items:center;
-                padding:8px;
-                margin-bottom:6px;
-                border:1px solid var(--border);
-                border-radius:10px;
-                background:var(--card);
-            ">
-                <div style="font-size:13px;">
+            <div class="similar-item">
+                <div class="similar-item-text">
                     ${f.title}
                 </div>
 
