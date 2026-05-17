@@ -278,6 +278,18 @@ button:hover { background: var(--accent-strong); }
     background: #fff7fb;
 }
 
+.show-more-btn {
+    margin-top: 12px;
+    background: var(--accent);
+    color: #2f1700;
+}
+
+.show-more-btn:disabled {
+    background: #e4e7ed;
+    color: #8c95a3;
+    cursor: not-allowed;
+}
+
 .spinner {
     width: 16px;
     height: 16px;
@@ -341,6 +353,9 @@ button:hover { background: var(--accent-strong); }
 
 <div id="list"></div>
 <div id="listState" class="list-state hidden"></div>
+<button id="showMoreBtn" class="show-more-btn hidden" onclick="showMore()">
+    Show more
+</button>
 
 </div>
 </div>
@@ -398,6 +413,9 @@ const supabaseClient = window.supabase.createClient(
 );
 
 let features = [];
+const PAGE_SIZE = 20;
+let visibleCount = PAGE_SIZE;
+let activeResults = [];
 
 function normalizeFeedbackType(value) {
     const type = String(value || "").trim().toLowerCase();
@@ -423,6 +441,9 @@ function setLoading(isLoading) {
 
     if (isLoading) {
         list.innerHTML = "";
+        activeResults = [];
+        visibleCount = PAGE_SIZE;
+        updateShowMore();
         state.className = "list-state";
         state.innerHTML = `<span class="spinner" aria-hidden="true"></span><span>Loading feedback...</span>`;
     } else {
@@ -433,6 +454,9 @@ function setLoading(isLoading) {
 
 function setLoadError(message) {
     const state = document.getElementById("listState");
+    activeResults = [];
+    visibleCount = PAGE_SIZE;
+    updateShowMore();
     state.className = "list-state error";
     state.innerHTML = `
         <span>${message}</span>
@@ -512,6 +536,7 @@ function applyFilters() {
         })
         .map(item => item.feature);
 
+    visibleCount = PAGE_SIZE;
     render(filtered);
 }
 
@@ -519,8 +544,9 @@ function applyFilters() {
 function render(data) {
     const list = document.getElementById("list");
     list.innerHTML = "";
+    activeResults = Array.isArray(data) ? data : [];
 
-    data.forEach(f => {
+    activeResults.slice(0, visibleCount).forEach(f => {
         const div = document.createElement("div");
         div.className = "feature";
         const feedbackType = getFeedbackType(f);
@@ -556,6 +582,26 @@ function render(data) {
 
         list.appendChild(div);
     });
+
+    updateShowMore();
+}
+
+function showMore() {
+    if (visibleCount >= activeResults.length) return;
+    visibleCount += PAGE_SIZE;
+    render(activeResults);
+}
+
+function updateShowMore() {
+    const btn = document.getElementById("showMoreBtn");
+    if (!btn) return;
+
+    const hasResults = activeResults.length > 0;
+    btn.classList.toggle("hidden", !hasResults);
+
+    const hasMore = visibleCount < activeResults.length;
+    btn.disabled = !hasMore;
+    btn.textContent = hasMore ? "Show more" : "No more results";
 }
 
 /* DETAIL */
