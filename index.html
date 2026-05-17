@@ -87,7 +87,7 @@ body {
 
 .input-row {
     display: grid;
-    grid-template-columns: 1fr 138px;
+    grid-template-columns: 1fr 138px 138px;
     gap: 10px;
     margin-bottom: 8px;
 }
@@ -99,7 +99,7 @@ input, textarea, select {
     border: 1px solid var(--border);
     background: var(--surface);
     color: var(--fg);
-    font-size: 15px;
+    font-size: 16px;
     outline: none;
 }
 
@@ -242,9 +242,48 @@ button:hover { background: var(--accent-strong); }
 
 .hidden { display: none; }
 
+.list-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 14px;
+    margin-top: 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.list-state.error {
+    justify-content: space-between;
+    color: #8a1742;
+    border-color: color-mix(in oklch, #8a1742 25%, var(--border) 75%);
+    background: #fff7fb;
+}
+
+.spinner {
+    width: 16px;
+    height: 16px;
+    border-radius: 999px;
+    border: 2px solid color-mix(in oklch, var(--accent) 20%, white 80%);
+    border-top-color: var(--accent-strong);
+    animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
 @media (max-width: 640px) {
     .input-row {
         grid-template-columns: 1fr;
+    }
+
+    .list-state.error {
+        align-items: flex-start;
+        flex-direction: column;
     }
 }
 </style>
@@ -271,9 +310,18 @@ button:hover { background: var(--accent-strong); }
         <option value="in_progress">In progress</option>
         <option value="done">Done</option>
     </select>
+    <select id="typeFilter" onchange="applyFilters()">
+        <option value="">All types</option>
+        <option value="feature">Feature</option>
+        <option value="bug">Bug</option>
+        <option value="ui">UI</option>
+        <option value="performance">Performance</option>
+        <option value="other">Other</option>
+    </select>
 </div>
 
 <div id="list"></div>
+<div id="listState" class="list-state hidden"></div>
 
 </div>
 </div>
@@ -291,7 +339,13 @@ button:hover { background: var(--accent-strong); }
 
 <input id="title" placeholder="Title" />
 <textarea id="descInput" placeholder="Description"></textarea>
-<input id="tags" placeholder="Tags (UI, Performance)" />
+<select id="feedbackType">
+    <option value="feature">Feature</option>
+    <option value="bug">Bug</option>
+    <option value="ui">UI</option>
+    <option value="performance">Performance</option>
+    <option value="other">Other</option>
+</select>
 
 <div id="similarBox" style="margin-bottom:12px;"></div>
 
@@ -326,6 +380,47 @@ const supabaseClient = window.supabase.createClient(
 
 let features = [];
 
+function normalizeFeedbackType(value) {
+    const type = String(value || "").trim().toLowerCase();
+    if (["feature", "bug", "ui", "performance", "other"].includes(type)) return type;
+    return "feature";
+}
+
+function getFeedbackType(feature) {
+    if (Array.isArray(feature?.tags) && feature.tags.length > 0) {
+        return normalizeFeedbackType(feature.tags[0]);
+    }
+    return "feature";
+}
+
+function toTypeLabel(type) {
+    if (type === "ui") return "UI";
+    return type.charAt(0).toUpperCase() + type.slice(1);
+}
+
+function setLoading(isLoading) {
+    const list = document.getElementById("list");
+    const state = document.getElementById("listState");
+
+    if (isLoading) {
+        list.innerHTML = "";
+        state.className = "list-state";
+        state.innerHTML = `<span class="spinner" aria-hidden="true"></span><span>Loading feedback...</span>`;
+    } else {
+        state.classList.add("hidden");
+        state.innerHTML = "";
+    }
+}
+
+function setLoadError(message) {
+    const state = document.getElementById("listState");
+    state.className = "list-state error";
+    state.innerHTML = `
+        <span>${message}</span>
+        <button onclick="load()" style="width:auto;padding:7px 10px;font-size:13px;">Retry</button>
+    `;
+}
+
 /* NAV */
 function showPage(p) {
     ["home","add","detail"].forEach(id =>
@@ -343,30 +438,45 @@ function getScore(f) {
 
 /* LOAD */
 async function load() {
-    const { data } = await supabaseClient
-        .from("features")
-        .select("*");
+    setLoading(true);
+    let didFail = false;
 
-    features = data || [];
+    try {
+        const { data, error } = await supabaseClient
+            .from("features")
+            .select("*");
 
-    features.sort((a,b) => getScore(b) - getScore(a));
+        if (error) throw error;
 
-    render(features);
-    updateSimilar();
+        features = data || [];
+        features.sort((a,b) => getScore(b) - getScore(a));
+
+        render(features);
+        updateSimilar();
+    } catch (err) {
+        didFail = true;
+        console.error("Failed to load feedback:", err);
+        setLoadError("Could not load feedback right now.");
+    } finally {
+        if (!didFail) setLoading(false);
+    }
 }
 
 /* FILTER */
 function applyFilters() {
     const search = document.getElementById("search").value.toLowerCase();
     const status = document.getElementById("statusFilter").value;
+    const type = document.getElementById("typeFilter").value;
 
     const filtered = features.filter(f => {
+        const feedbackType = getFeedbackType(f);
         return (
             (!search ||
                 f.title?.toLowerCase().includes(search) ||
                 f.description?.toLowerCase().includes(search)
             ) &&
-            (!status || (f.status || "open") === status)
+            (!status || (f.status || "open") === status) &&
+            (!type || feedbackType === type)
         );
     });
 
@@ -381,12 +491,13 @@ function render(data) {
     data.forEach(f => {
         const div = document.createElement("div");
         div.className = "feature";
+        const feedbackType = getFeedbackType(f);
 
         div.innerHTML = `
             <div class="feature-title">${f.title}</div>
 
             <div>
-                ${(f.tags || []).map(t => `<span class="tag">${t}</span>`).join("")}
+                <span class="tag">${toTypeLabel(feedbackType)}</span>
             </div>
 
             <div class="feature-bottom">
@@ -417,11 +528,12 @@ function render(data) {
 
 /* DETAIL */
 function openDetail(f) {
+    const feedbackType = getFeedbackType(f);
     document.getElementById("detailTitle").innerText = f.title;
     document.getElementById("detailDesc").innerText = f.description;
 
     document.getElementById("detailTags").innerHTML =
-        (f.tags || []).map(t => `<span class="tag">${t}</span>`).join("");
+        `<span class="tag">${toTypeLabel(feedbackType)}</span>`;
 
     const btn = document.getElementById("detailVote");
     btn.innerText = "^ " + f.votes;
@@ -458,9 +570,9 @@ async function vote(id, votes) {
 async function addFeature() {
     const title = document.getElementById("title").value.trim();
     const description = document.getElementById("descInput").value.trim();
-    const tags = document.getElementById("tags").value
-        .split(",")
-        .map(t => t.trim());
+    const feedbackType = normalizeFeedbackType(
+        document.getElementById("feedbackType").value
+    );
 
     if (title.length < 3) return;
 
@@ -477,7 +589,7 @@ async function addFeature() {
     await supabaseClient.from("features").insert([{
         title,
         description,
-        tags,
+        tags: [feedbackType],
         votes: 0,
         status: "open"
     }]);
