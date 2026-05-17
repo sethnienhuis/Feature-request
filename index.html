@@ -39,6 +39,21 @@ body {
     margin: 0 auto;
 }
 
+.home-topbar {
+    position: sticky;
+    top: clamp(8px, 2vw, 16px);
+    z-index: 20;
+    margin-bottom: 12px;
+}
+
+.topbar-inner {
+    background: color-mix(in oklch, var(--surface) 94%, #f7f8fb 6%);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 10px 12px;
+    box-shadow: 0 8px 24px rgba(20, 28, 40, 0.06);
+}
+
 .panel {
     background: color-mix(in oklch, var(--surface) 92%, #f7f8fb 8%);
     border: 1px solid var(--border);
@@ -293,13 +308,17 @@ button:hover { background: var(--accent-strong); }
 
 <!-- ================= HOME ================= -->
 <div id="home">
-<div class="panel">
-
-<div class="header">
+<div class="home-topbar">
+<div class="topbar-inner">
+<div class="header" style="margin-bottom:0;">
     <div></div>
-    <h2>Feedback Board</h2>
-    <button class="icon-btn" onclick="showPage('add')">+</button>
+    <h2 style="text-align:left;">Feedback Board</h2>
+    <button class="icon-btn" onclick="showPage('add')" aria-label="Submit feedback">+</button>
 </div>
+</div>
+</div>
+
+<div class="panel">
 <p class="subtitle">Share ideas, discover similar requests, and vote for what matters most.</p>
 
 <div class="input-row">
