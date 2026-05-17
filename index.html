@@ -483,21 +483,34 @@ async function load() {
 
 /* FILTER */
 function applyFilters() {
-    const search = document.getElementById("search").value.toLowerCase();
+    const search = document.getElementById("search").value.trim().toLowerCase();
     const status = document.getElementById("statusFilter").value;
     const type = document.getElementById("typeFilter").value;
 
-    const filtered = features.filter(f => {
-        const feedbackType = getFeedbackType(f);
-        return (
-            (!search ||
-                f.title?.toLowerCase().includes(search) ||
-                f.description?.toLowerCase().includes(search)
-            ) &&
-            (!status || (f.status || "open") === status) &&
-            (!type || feedbackType === type)
-        );
-    });
+    const filtered = features
+        .map(f => {
+            const feedbackType = getFeedbackType(f);
+            return {
+                feature: f,
+                feedbackType,
+                queryScore: getSearchScore(search, f)
+            };
+        })
+        .filter(item => {
+            const f = item.feature;
+            return (
+                (!status || (f.status || "open") === status) &&
+                (!type || item.feedbackType === type) &&
+                (!search || item.queryScore > 0)
+            );
+        })
+        .sort((a, b) => {
+            if (search && b.queryScore !== a.queryScore) {
+                return b.queryScore - a.queryScore;
+            }
+            return getScore(b.feature) - getScore(a.feature);
+        })
+        .map(item => item.feature);
 
     render(filtered);
 }
@@ -658,6 +671,23 @@ function similarity(a, b) {
     const union = new Set([...aWords, ...bWords]).size;
 
     return intersection / union;
+}
+
+function getSearchScore(query, feature) {
+    if (!query) return 1;
+
+    const title = String(feature?.title || "");
+    const description = String(feature?.description || "");
+
+    const titleScore = similarity(query, title);
+    const descriptionScore = similarity(query, description);
+
+    const titleContains = title.toLowerCase().includes(query) ? 0.35 : 0;
+    const descriptionContains = description.toLowerCase().includes(query) ? 0.15 : 0;
+    const bestSimilarity = Math.max(titleScore, descriptionScore);
+
+    const score = bestSimilarity + Math.max(titleContains, descriptionContains);
+    return score > 0.12 ? score : 0;
 }
 
 function findClosestMatch(title) {
